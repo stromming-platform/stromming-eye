@@ -37,6 +37,12 @@ Examples:
 
 This will make it easier for others to navigate the code and find important comments.
 
+### Code Quality
+
+This project uses ESlint, which can be run using `npm run lint` or `npm run lint:fix`. The former simply checks the code, but the latter checks and attemps to fix issues.
+
+Additionally, we use Playwright to run tests. However, this has not yet been fixed/properly implemented. When this has been fixed it can be run using `npm run test`.
+
 ## Building
 
 To create a production version of your app:
