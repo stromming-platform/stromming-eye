@@ -1,4 +1,10 @@
 <script lang="ts">
+	// NOTE: Might want to move assets outside of /src/ since that would build it differently
+	// NOTE: Since these are static images we have to import them like this, since the svelte compiler apparently does not
+	// allow for things like <img src="/bla/blorg/blirg.png">
+	import img from "$lib/images/strommingPog.png"
+	import vid from "$lib/videos/video.mp4"
+
 	import { Grid, gridHelp } from "$lib/js/svelte-grid";
 
 	const id = () => "_" + Math.random().toString(36).substr(2, 9);
@@ -38,10 +44,6 @@
 
   let boll = false;
   const cols = [[1200, 6]];
-
-
-	const source = 'src/lib/videos/video.mp4'
-	const poster = 'src/lib/images/strommingPog.png'
 
 	// TODO: export to type-file
 	type boxItem = {
@@ -90,8 +92,8 @@
 
 <section>
 	<h1>
-		<p>HELLO</p> 
-		<img height="50" width="100" src="src/lib/images/strommingPog.png" alt="TEST">
+		HELLO 
+		<img height="50" width="100" src={img} alt="TEST">
 	</h1>
 	
 	<button on:click={toggleBoll} class="bg-green-500 rounded p-2 text-white">
@@ -107,6 +109,7 @@
 		<div class="demo-container">
 			<Grid bind:items rowHeight={100} let:item let:dataItem {cols}>
 			  <div class="demo-widget">{dataItem.id}
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<span on:pointerdown={e => e.stopPropagation()}
 					on:click={() => remove(dataItem)}
 					class=remove
@@ -118,10 +121,11 @@
 			</Grid>
 		</div>
 		{/if}
+		
 		<video width="1080" height="1920" controls >
-			<source src="src/lib/videos/video.mp4" type="video/mp4">
+			<source src={vid} type="video/mp4">
+			<track kind="captions"/>
 		</video> 
-	</div>
 </section>
 
 <style>
