@@ -38,18 +38,4 @@
       margin-bottom: 30px;
     }
     
-    .split {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-    img {
-      border-radius: 1rem;
-    }
-    blockquote {
-        font-size: 30px;
-        color: #888;
-        position: relative;
-    }
-    
-    blockquote:before {content: "";position: absolute;left: -40px;top: 17%;height: 60px;width: 4px;background: #6878d7;}
 </style>

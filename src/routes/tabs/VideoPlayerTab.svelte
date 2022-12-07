@@ -4,6 +4,8 @@
 
 	import { Grid, gridHelp } from "$lib/js/svelte-grid";
 
+	const id = () => "_" + Math.random().toString(36).substr(2, 9);
+
     let items = [
     {
 		6: gridHelp.item({
@@ -12,7 +14,6 @@
 			w: 4,
 			h: 5,
 		}),
-		//id: id(),
 		id: "Box1",
     },
     {
@@ -137,10 +138,6 @@
 		justify-content: space-between;
 		width: 240px;
 		padding-bottom: 20px;
-	}
-
-	h1 {
-		width: 100%;
 	}
 
 	.demo-container{
