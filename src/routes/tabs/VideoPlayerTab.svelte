@@ -1,7 +1,8 @@
 <script lang="ts">
-    import img from "$lib/images/strommingPog.png";
-	import vid from "$lib/videos/video.mp4";
-
+	import vid_whole from "$lib/videos/broadcast.mp4";
+	import vid_stitched from "$lib/videos/combined.mp4";
+	import { onMount } from 'svelte';
+	
 	import { Grid, gridHelp } from "$lib/js/svelte-grid";
 
 	const id = () => "_" + Math.random().toString(36).substr(2, 9);
@@ -12,7 +13,7 @@
 			x: 0,
 			y: 0,
 			w: 4,
-			h: 5,
+			h: 4,
 		}),
 		id: "Box1",
     },
@@ -39,7 +40,12 @@
   ];
 
   let boll = false;
+  let loaded = false;
+  let basic = null;
+  let myVideo = null;
+  let vidSrc = null;
   const cols = [[1200, 6]];
+  
 
 	// TODO: export to type-file
 	type boxItem = {
@@ -47,8 +53,33 @@
 		id: string,
 	}
 
+	onMount(async () => {
+		basic = vid_whole
+		vidSrc = vid_whole;
+		loaded = true;
+	});
+
 	function toggleBoll() {
 		boll = !boll;
+	}
+
+	function toggleStitch() {
+		if(vidSrc == basic){
+			console.log("this");
+			
+			vidSrc = vid_stitched;
+		}
+		else {
+			console.log("that");
+			
+			vidSrc = vid_whole;
+		}
+		myVideo.load();
+
+		if(boll){
+			toggleBoll();
+		}
+		myVideo.play()
 	}
 
 	function remove(item: boxItem) {
@@ -68,6 +99,7 @@
 
 		let findOutPosition = gridHelp.findSpace(newItem, items, 6);
 
+		// I Really Fucking Hate This Syntax
 		newItem = {
 			...newItem,
 			[6]: {
@@ -91,6 +123,10 @@
 		<button on:click={add} class="bg-[#9899D0] rounded p-2 text-white">
 			Add stream
 		</button>
+
+		<button on:click={toggleStitch} class="bg-[#9899D0] rounded p-2 text-white">
+			Set layout
+		</button>
 	</div>
 
 	<div id="container">
@@ -101,7 +137,7 @@
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<span on:pointerdown={e => e.stopPropagation()}
 					on:click={() => remove(dataItem)}
-					class=remove
+					class="remove"
 					>
 					x
 				  </span>
@@ -111,8 +147,8 @@
 		</div>
 		{/if}
 		
-		<video width="1080" height="1920" controls >
-			<source src={vid} type="video/mp4">
+		<video width="3446" height="1964" controls bind:this={myVideo}>
+			<source src={vidSrc} type="video/mp4">
 			<track kind="captions"/>
 		</video> 
 </section>
@@ -136,16 +172,13 @@
 		display: flex;
 		align-items: right;
 		justify-content: space-between;
-		width: 240px;
-		padding-bottom: 20px;
+		width: 25rem;
+		padding-bottom: 1rem;
 	}
 
 	.demo-container{
 		width: 100%;
 		height: 100%;
-		/* border-radius: 10px;
-		border-color: blue;
-		border-width: 10px; */
 		position: absolute;
 	}
 
@@ -173,6 +206,13 @@
 
 	:global(.svlt-grid-item) {
 		background: red;
+	}
+
+	.remove { 
+		cursor: pointer; 
+		position: absolute; 
+		right: 5px; 
+		top: 3px; 
 	}
 
 	#container {

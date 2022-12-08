@@ -2,13 +2,20 @@
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
-    export let items;
-    export let activeTab;
+    /**
+	 * @type {any}
+	 */
+     export let items;
+    /**
+	 * @type {any}
+	 */
+     export let activeTab;
 </script>
 
 <div class="tabs">
     <ul>
         {#each items as item}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li on:click={() => dispatch('tabChange', item)}>
                 <span class:active={item === activeTab}>{item}</span>
             </li>
