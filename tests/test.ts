@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('home page has expected h1', async ({ page }) => {
+test('home page has expected title', async ({ page }) => {
 	await page.goto('/');
-	expect(await page.textContent('h1')).toContain('HELLO');
+	expect(await page.textContent('section')).toContain('STRØMMING');
 });
