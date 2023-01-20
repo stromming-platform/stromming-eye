@@ -4,30 +4,38 @@
 	import { onMount } from 'svelte';
 	
 	import { Grid, gridHelp } from "$lib/js/svelte-grid";
+	import ViewboxConfigModal from "../../components/ViewboxConfigModal.svelte";
 
 	const id = () => "_" + Math.random().toString(36).substr(2, 9);
+	const COLS = 6;
+	let modalActive = false;
+	let currentGridBox: boxItem|undefined;
 
     let items = [
     {
-		6: gridHelp.item({
+		[COLS]: gridHelp.item({
 			x: 0,
 			y: 0,
 			w: 4,
 			h: 4,
 		}),
-		id: "Box1",
+		id: id(),
+		source: 'myStream.com',
+		isPrimaryAudioSource: true,
     },
     {
-		6: gridHelp.item({
+		[COLS]: gridHelp.item({
 			x: 4,
 			y: 0,
 			w: 2,
 			h: 2,
 		}),
-		id: "Box2",
+		id: id(),
+		source: undefined,
+		isPrimaryAudioSource: false,
     },
 	{
-		6: gridHelp.item({
+		[COLS]: gridHelp.item({
 			x: 4,
 			y: 2,
 			w: 2,
@@ -35,7 +43,9 @@
 		}),
 		// This makes a random ID
 		//id: id(),
-		id: "Box3"
+		id: id(),
+		source: undefined,
+		isPrimaryAudioSource: false,
 	},
   ];
 
@@ -51,6 +61,17 @@
 	type boxItem = {
 		6: any,
 		id: string,
+		source: string|undefined,
+		isPrimaryAudioSource: boolean,
+	}
+
+	type exportItem = {
+		source: string,
+		height: number,
+		width: number,
+		xCoord: number,
+		yCoord: number,
+		audio: boolean,
 	}
 
 	onMount(async () => {
@@ -63,15 +84,31 @@
 		boll = !boll;
 	}
 
+	/**
+	 * Toggels the configuration modal for the layout boxes
+	 * where one can edit video source and set a particular audiosource
+	 * 
+	 * @param currentBox 
+	 */
+	function toggleConfigModal(currentBox: boxItem|undefined) {
+		if(currentBox){
+			modalActive = !modalActive;
+			currentGridBox = currentBox;
+		}
+		else{
+			console.log('current box: ',currentBox)
+		}
+		console.log(currentGridBox);
+	}
+
+	/*
+	 * Sends the current layout to the backend to be processed 
+	 */
 	function toggleStitch() {
-		if(vidSrc == basic){
-			console.log("this");
-			
+		if(vidSrc == basic){			
 			vidSrc = vid_stitched;
 		}
-		else {
-			console.log("that");
-			
+		else {			
 			vidSrc = vid_whole;
 		}
 		myVideo.load();
@@ -79,22 +116,65 @@
 		if(boll){
 			toggleBoll();
 		}
-		myVideo.play()
+		myVideo.play();
+		console.log(items);
+		const exportList: exportItem[] = [];
+		for(let i of items){
+			let tempItem: exportItem = {
+				source: i[6].source,
+				height: i[6].h,
+				width: i[6].w,
+				xCoord: i[6].x,
+				yCoord: i[6].y,
+				audio: i[6].isPrimaryAudioSource, 
+			}
+		exportList.push(tempItem);
+		}
+		console.log(exportList);
 	}
 
+	function handlePrimaryAudioChange(){
+		console.log('brap', currentGridBox);
+		if(currentGridBox?.isPrimaryAudioSource){
+			
+			for(let i of items){
+				if(i.id != currentGridBox.id){
+					i.isPrimaryAudioSource = false;
+				}
+			}
+		}
+		// else {
+		// 	let temp = false;
+		// 	for(let i of items){
+		// 		temp = i.isPrimaryAudioSource;
+		// 		if(temp) break;
+		// 	}
+		// 	if(!temp) items[0].isPrimaryAudioSource = true; 
+		// }
+	}
+
+	/**
+	 * Removes a layout box
+	 * @param item
+	 */
 	function remove(item: boxItem) {
   		items = items.filter((value) => value.id !== item.id);
 	}
 
+	/**
+	 * Adds a layout box
+	 */
 	function add() {
 		let newItem = {
-			6: gridHelp.item({
+			[COLS]: gridHelp.item({
 			w: 2,
 			h: 2,
 			x: 0,
 			y: 0,
 			}),
 			id: id(),
+			source: undefined,
+			isPrimaryAudioSource: false,
 		};
 
 		let findOutPosition = gridHelp.findSpace(newItem, items, 6);
@@ -130,6 +210,20 @@
 	</div>
 
 	<div id="container">
+		{#if modalActive}
+			<div>
+				<ViewboxConfigModal
+					streamURL={currentGridBox.source}
+					isPrimaryAudio={currentGridBox.isPrimaryAudioSource}
+					on:save={(event) => {
+						currentGridBox.source = event.detail.url;
+						currentGridBox.isPrimaryAudioSource = event.detail.audio;
+						handlePrimaryAudioChange();
+					}}
+					on:close={toggleConfigModal}
+				/>
+		 	</div>		
+		{/if}
 		{#if boll}
 		<div class="demo-container">
 			<Grid bind:items rowHeight={100} let:item let:dataItem {cols}>
@@ -141,7 +235,14 @@
 					>
 					x
 				  </span>
-				  <p>{dataItem.id}</p>
+				  <p>{dataItem.id}</p>		
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<span on:pointerdown={e => e.stopPropagation()}
+					on:click={toggleConfigModal(dataItem)}
+					class="bottom-0 left-0 absolute"
+				>
+					config source
+				</span>
 			</div>
 			</Grid>
 		</div>
