@@ -6,11 +6,12 @@
 	import InfoTab from "./tabs/InfoTab.svelte";
 	import VideoPlayerTab from "./tabs/VideoPlayerTab.svelte";
 	import Tabs from "./tabs/Tabs.svelte";
+	import Toast from "../components/toaster/Toast.svelte";
 
 	//tabs
 	let tabItems = ["Info", "Video Player"];
 	let activeTab = "Info";
-	const tabChange = (e) => {
+	const tabChange = (e: any) => {
 		activeTab = e.detail;
 	}
 
@@ -28,7 +29,7 @@
 	<VideoPlayerTab></VideoPlayerTab>
 {/if}
 
-
+<Toast/>
 
 <style>
 

@@ -2,40 +2,50 @@
 	import vid_whole from "$lib/videos/broadcast.mp4";
 	import vid_stitched from "$lib/videos/combined.mp4";
 	import { onMount } from 'svelte';
-	
+	import type { exportItem, boxItem } from "$lib/types";
 	import { Grid, gridHelp } from "$lib/js/svelte-grid";
+	import ViewboxConfigModal from "../../components/ViewboxConfigModal.svelte";
+	import Toast from "../../components/toaster/Toast.svelte";
+	import { notifications } from "../../components/toaster/notification";
 
 	const id = () => "_" + Math.random().toString(36).substr(2, 9);
+	const COLS = 6;
+	let modalActive = false;
+	let currentGridBox: boxItem|undefined;
 
     let items = [
     {
-		6: gridHelp.item({
+		[COLS]: gridHelp.item({
 			x: 0,
 			y: 0,
 			w: 4,
 			h: 4,
 		}),
-		id: "Box1",
+		id: id(),
+		source: 'myStream.com',
+		isPrimaryAudioSource: true,
     },
     {
-		6: gridHelp.item({
+		[COLS]: gridHelp.item({
 			x: 4,
 			y: 0,
 			w: 2,
 			h: 2,
 		}),
-		id: "Box2",
+		id: id(),
+		source: undefined,
+		isPrimaryAudioSource: false,
     },
 	{
-		6: gridHelp.item({
+		[COLS]: gridHelp.item({
 			x: 4,
 			y: 2,
 			w: 2,
 			h: 2,
 		}),
-		// This makes a random ID
-		//id: id(),
-		id: "Box3"
+		id: id(),
+		source: undefined,
+		isPrimaryAudioSource: false,
 	},
   ];
 
@@ -45,13 +55,6 @@
   let myVideo = null;
   let vidSrc = null;
   const cols = [[1200, 6]];
-  
-
-	// TODO: export to type-file
-	type boxItem = {
-		6: any,
-		id: string,
-	}
 
 	onMount(async () => {
 		basic = vid_whole
@@ -63,38 +66,95 @@
 		boll = !boll;
 	}
 
-	function toggleStitch() {
-		if(vidSrc == basic){
-			console.log("this");
-			
-			vidSrc = vid_stitched;
+	/**
+	 * Toggels the configuration modal for the layout boxes
+	 * where one can edit video source and set a particular audiosource
+	 * 
+	 * @param currentBox 
+	 */
+	function toggleConfigModal(currentBox: boxItem|undefined) {
+		if(currentBox){
+			modalActive = !modalActive;
+			currentGridBox = currentBox;
 		}
-		else {
-			console.log("that");
-			
-			vidSrc = vid_whole;
+		else{
+			notifications.danger('Something went wrong with the Config', 5000)
 		}
-		myVideo.load();
-
-		if(boll){
-			toggleBoll();
-		}
-		myVideo.play()
 	}
 
+	/*
+	 * Sends the current layout to the backend to be processed 
+	 */
+	function toggleStitch() {
+		const exportList: exportItem[] = [];
+		let hasAudio = false;
+		for(let i of items){
+			let tempItem: exportItem = {
+				source: i[6].source,
+				height: i[6].h,
+				width: i[6].w,
+				xCoord: i[6].x,
+				yCoord: i[6].y,
+				audio: i.isPrimaryAudioSource, 
+			}
+			if(i.isPrimaryAudioSource) {hasAudio = true;}
+			exportList.push(tempItem);
+		}
+		if(hasAudio){
+			// TODO: gotta do API call
+			// Play video
+			if(vidSrc == basic){			
+			vidSrc = vid_stitched;
+			} 
+			else {			
+				vidSrc = vid_whole;
+			}
+			myVideo.load();
+
+			// Toggle layout
+			if(boll){
+				toggleBoll();
+			}
+			myVideo.play();
+		}
+		else {
+			notifications.info('You have no audio selected, please select one', 5000)
+		}
+		console.log(exportList);
+	}
+
+	function handlePrimaryAudioChange(){
+		if(currentGridBox?.isPrimaryAudioSource){
+			for(let i of items){
+				if(i.id != currentGridBox.id){
+					i.isPrimaryAudioSource = false;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Removes a layout box
+	 * @param item
+	 */
 	function remove(item: boxItem) {
   		items = items.filter((value) => value.id !== item.id);
 	}
 
+	/**
+	 * Adds a layout box
+	 */
 	function add() {
 		let newItem = {
-			6: gridHelp.item({
+			[COLS]: gridHelp.item({
 			w: 2,
 			h: 2,
 			x: 0,
 			y: 0,
 			}),
 			id: id(),
+			source: undefined,
+			isPrimaryAudioSource: false,
 		};
 
 		let findOutPosition = gridHelp.findSpace(newItem, items, 6);
@@ -130,6 +190,20 @@
 	</div>
 
 	<div id="container">
+		{#if modalActive}
+			<div>
+				<ViewboxConfigModal
+					streamURL={currentGridBox.source}
+					isPrimaryAudio={currentGridBox.isPrimaryAudioSource}
+					on:save={(event) => {
+						currentGridBox.source = event.detail.url;
+						currentGridBox.isPrimaryAudioSource = event.detail.audio;
+						handlePrimaryAudioChange();
+					}}
+					on:close={toggleConfigModal}
+				/>
+		 	</div>		
+		{/if}
 		{#if boll}
 		<div class="demo-container">
 			<Grid bind:items rowHeight={100} let:item let:dataItem {cols}>
@@ -141,7 +215,14 @@
 					>
 					x
 				  </span>
-				  <p>{dataItem.id}</p>
+				  <p>{dataItem.id}</p>		
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<span on:pointerdown={e => e.stopPropagation()}
+					on:click={toggleConfigModal(dataItem)}
+					class="bottom-0 left-0 absolute"
+				>
+					config source
+				</span>
 			</div>
 			</Grid>
 		</div>
