@@ -2,9 +2,11 @@
 	import vid_whole from "$lib/videos/broadcast.mp4";
 	import vid_stitched from "$lib/videos/combined.mp4";
 	import { onMount } from 'svelte';
-	
+	import type { exportItem, boxItem } from "$lib/types";
 	import { Grid, gridHelp } from "$lib/js/svelte-grid";
 	import ViewboxConfigModal from "../../components/ViewboxConfigModal.svelte";
+	import Toast from "../../components/toaster/Toast.svelte";
+	import { notifications } from "../../components/toaster/notification";
 
 	const id = () => "_" + Math.random().toString(36).substr(2, 9);
 	const COLS = 6;
@@ -41,8 +43,6 @@
 			w: 2,
 			h: 2,
 		}),
-		// This makes a random ID
-		//id: id(),
 		id: id(),
 		source: undefined,
 		isPrimaryAudioSource: false,
@@ -55,24 +55,6 @@
   let myVideo = null;
   let vidSrc = null;
   const cols = [[1200, 6]];
-  
-
-	// TODO: export to type-file
-	type boxItem = {
-		6: any,
-		id: string,
-		source: string|undefined,
-		isPrimaryAudioSource: boolean,
-	}
-
-	type exportItem = {
-		source: string,
-		height: number,
-		width: number,
-		xCoord: number,
-		yCoord: number,
-		audio: boolean,
-	}
 
 	onMount(async () => {
 		basic = vid_whole
@@ -96,29 +78,16 @@
 			currentGridBox = currentBox;
 		}
 		else{
-			console.log('current box: ',currentBox)
+			notifications.danger('Something went wrong with the Config', 5000)
 		}
-		console.log(currentGridBox);
 	}
 
 	/*
 	 * Sends the current layout to the backend to be processed 
 	 */
 	function toggleStitch() {
-		if(vidSrc == basic){			
-			vidSrc = vid_stitched;
-		}
-		else {			
-			vidSrc = vid_whole;
-		}
-		myVideo.load();
-
-		if(boll){
-			toggleBoll();
-		}
-		myVideo.play();
-		console.log(items);
 		const exportList: exportItem[] = [];
+		let hasAudio = false;
 		for(let i of items){
 			let tempItem: exportItem = {
 				source: i[6].source,
@@ -126,31 +95,42 @@
 				width: i[6].w,
 				xCoord: i[6].x,
 				yCoord: i[6].y,
-				audio: i[6].isPrimaryAudioSource, 
+				audio: i.isPrimaryAudioSource, 
 			}
-		exportList.push(tempItem);
+			if(i.isPrimaryAudioSource) {hasAudio = true;}
+			exportList.push(tempItem);
+		}
+		if(hasAudio){
+			// TODO: gotta do API call
+			// Play video
+			if(vidSrc == basic){			
+			vidSrc = vid_stitched;
+			} 
+			else {			
+				vidSrc = vid_whole;
+			}
+			myVideo.load();
+
+			// Toggle layout
+			if(boll){
+				toggleBoll();
+			}
+			myVideo.play();
+		}
+		else {
+			notifications.info('You have no audio selected, please select one', 5000)
 		}
 		console.log(exportList);
 	}
 
 	function handlePrimaryAudioChange(){
-		console.log('brap', currentGridBox);
 		if(currentGridBox?.isPrimaryAudioSource){
-			
 			for(let i of items){
 				if(i.id != currentGridBox.id){
 					i.isPrimaryAudioSource = false;
 				}
 			}
 		}
-		// else {
-		// 	let temp = false;
-		// 	for(let i of items){
-		// 		temp = i.isPrimaryAudioSource;
-		// 		if(temp) break;
-		// 	}
-		// 	if(!temp) items[0].isPrimaryAudioSource = true; 
-		// }
 	}
 
 	/**

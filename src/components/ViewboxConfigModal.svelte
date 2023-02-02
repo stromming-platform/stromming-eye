@@ -1,51 +1,11 @@
-<!-- <script context="module" lang="ts">
-
- 	let modal = {};
-
-	export function getModal(){
-		return modal;
-	}
-
-</script> -->
 
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
-	// import { onDestroy } from "svelte";
 
 	export let streamURL: string|undefined;
 	export let isPrimaryAudio: boolean;
 	let componentRef: HTMLDivElement;
 	const dispatch = createEventDispatcher();
-	console.log(isPrimaryAudio);
-
-	// function keyPressed(event: any) {
-	// 	if (event.key == 'Escape'){
-	// 		close();
-	//         }
-	// }
-
-	// function open(callback: any){
-	// 	closeCallback = callback;
-	// 	window.addEventListener('keydown', keyPressed);
-	// 	document.body.style.overflow = 'hidden';
-	// 	visible = true;
-	// 	document.body.appendChild(componentRef);
-	// }
-
-	// function close(returnValue: any){
-	// 	if (!visible) return;
-	// 	window.removeEventListener('keydown', keyPressed);
-	// 	visible = false;
-	// 	if(closeCallback) closeCallback(returnValue);
-	// }
-
-	// modal = {open, close}
-
-	// onDestroy(() => {
-	// 	delete ;
-	// 	window.removeEventListener('keydown', keyPressed);
-	// });
-
 </script>
 
 <div
