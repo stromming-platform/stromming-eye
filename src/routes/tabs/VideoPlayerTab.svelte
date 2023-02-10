@@ -7,6 +7,8 @@
 	import ViewboxConfigModal from "../../components/ViewboxConfigModal.svelte";
 	import Toast from "../../components/toaster/Toast.svelte";
 	import { notifications } from "../../components/toaster/notification";
+	import Fa from 'svelte-fa';
+	import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 	const id = () => "_" + Math.random().toString(36).substr(2, 9);
 	const COLS = 6;
@@ -191,7 +193,7 @@
 
 	<div id="container">
 		{#if modalActive}
-			<div>
+			<div class="options">
 				<ViewboxConfigModal
 					streamURL={currentGridBox.source}
 					isPrimaryAudio={currentGridBox.isPrimaryAudioSource}
@@ -215,14 +217,14 @@
 					>
 					x
 				  </span>
-				  <p>{dataItem.id}</p>		
+				  <p class="left-3">{dataItem.id}</p>		
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<span on:pointerdown={e => e.stopPropagation()}
 					on:click={toggleConfigModal(dataItem)}
-					class="bottom-0 left-0 absolute"
+					class="bottom-1 left-3 absolute"
 				>
-					config source
-				</span>
+				<p class="cog"> <Fa icon={faCog} style="padding: 0 0 10 5;" size="1.8x"/></p>
+			</span>
 			</div>
 			</Grid>
 		</div>
@@ -276,8 +278,9 @@
 		min-height: 100%;
 		height: 100%;
 		width: 100%;
-		background: rgb(229, 203, 231);
-		opacity: 45%;
+		background: rgb(126, 112, 128);
+		opacity: 75%;
+		
 	}
 	:global(.svlt-grid-resizer::after) {
 		/* Resizer color */
@@ -287,13 +290,15 @@
 	}
 
 	:global(.svlt-grid-item) {
-		background: red;
+		background: rgb(175, 138, 199);
+		border-radius: 6px;
+		border: 2px solid black;
 	}
 
 	.remove { 
 		cursor: pointer; 
 		position: absolute; 
-		right: 5px; 
+		right: 10px; 
 		top: 3px; 
 	}
 
@@ -302,5 +307,15 @@
 		max-width: 960px;
 		max-height: 960px;
 		position: relative;
+	}
+	.demo-widget {
+		padding: 3%;
+		opacity: 100%;
+	}
+	.cog {
+		cursor: pointer;
+	}
+	.options {
+		background: rgb(126, 112, 128);
 	}
 </style>

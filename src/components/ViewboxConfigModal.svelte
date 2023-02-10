@@ -24,7 +24,8 @@
 		<div class="bottom-0 left-0 absolute w-full my-1">	
 		        <div class="flex mx-1">
 			<button
-				class="flex-none bg-green-300 hover:bg-green-500 rounded p-1"
+				class="flex-none bg-green-300 hover:bg-green-500 rounded p-1" 
+				style="width: 70px;"				
 				on:click={() => {
 					dispatch('save', {url: streamURL, audio: isPrimaryAudio});
 					componentRef.parentNode?.removeChild(componentRef);
@@ -35,7 +36,8 @@
 			</button>
 			<span class="grow"></span>
 			<button
-				class="felx-none bg-red-300 hover:bg-red-500 rounded p1"
+				class="flex-none bg-red-300 hover:bg-red-500 rounded p1"
+				style="width: 70px;"
 				on:click={() =>{
 					componentRef.parentNode?.removeChild(componentRef);
 					dispatch('close');
@@ -55,9 +57,14 @@
 
 		width: 100x;
 		height: 200px;
-		z-index: 99;
+		z-index: 100;
 		position: absolute;
-		background-color: white;
+		background-color: rgb(126, 112, 128);
+		opacity: 100%;
+	}
+
+	:global(.button) {
+		width: 25px;
 	}
 
 
