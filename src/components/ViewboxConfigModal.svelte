@@ -1,6 +1,5 @@
-
 <script lang="ts">
-	import { createEventDispatcher } from "svelte";
+	import { createEventDispatcher } from 'svelte';
 
 	export let streamURL: string[];
 	export let isPrimaryAudio: boolean;
@@ -9,10 +8,7 @@
 	const dispatch = createEventDispatcher();
 </script>
 
-<div
-	bind:this={componentRef}	 
-	class="modalContainer border border-2 rounded"
->
+<div bind:this={componentRef} class="modalContainer border border-2 rounded">
 	<div class="p-2 w-full h-full">
 		<div>
 			<label for="">Source:</label>
@@ -26,42 +22,39 @@
 		</div>
 		<div>
 			<label for="">Audio source:</label>
-			<input type="checkbox" bind:checked={isPrimaryAudio}>
+			<input type="checkbox" bind:checked={isPrimaryAudio} />
 		</div>
-		<div class="bottom-0 left-0 absolute w-full my-1">	
-		        <div class="flex mx-1">
-			<button
-				class="flex-none bg-green-300 hover:bg-green-500 rounded p-1" 
-				style="width: 70px;"				
-				on:click={() => {
-					dispatch('save', {url: selectedStream, audio: isPrimaryAudio});
-					componentRef.parentNode?.removeChild(componentRef);
-					dispatch('close');
+		<div class="bottom-0 left-0 absolute w-full my-1">
+			<div class="flex mx-1">
+				<button
+					class="flex-none bg-green-300 hover:bg-green-500 rounded p-1"
+					style="width: 70px;"
+					on:click={() => {
+						dispatch('save', { url: selectedStream, audio: isPrimaryAudio });
+						componentRef.parentNode?.removeChild(componentRef);
+						dispatch('close');
 					}}
 				>
-				Save
-			</button>
-			<span class="grow"></span>
-			<button
-				class="flex-none bg-red-300 hover:bg-red-500 rounded p1"
-				style="width: 70px;"
-				on:click={() =>{
-					componentRef.parentNode?.removeChild(componentRef);
-					dispatch('close');
-				}
-				}
+					Save
+				</button>
+				<span class="grow" />
+				<button
+					class="flex-none bg-red-300 hover:bg-red-500 rounded p1"
+					style="width: 70px;"
+					on:click={() => {
+						componentRef.parentNode?.removeChild(componentRef);
+						dispatch('close');
+					}}
 				>
-				Close
-			</button>
+					Close
+				</button>
 			</div>
-		</div>	
+		</div>
 	</div>
 </div>
 
 <style>
-
-	.modalContainer{
-
+	.modalContainer {
 		width: 100x;
 		height: 200px;
 		z-index: 100;
@@ -73,6 +66,4 @@
 	:global(.button) {
 		width: 25px;
 	}
-
-
 </style>

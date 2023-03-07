@@ -1,28 +1,26 @@
 <script lang="ts">
-	import vid_whole from '$lib/videos/broadcast.mp4';
-	import vid_stitched from '$lib/videos/combined.mp4';
-	import { onMount } from 'svelte';
-	import type { exportItem, boxItem } from '$lib/types';
-	import { Grid, gridHelp } from '$lib/js/svelte-grid';
-	import ViewboxConfigModal from '../../components/ViewboxConfigModal.svelte';
-	import { notifications } from '../../components/toaster/notification';
 	import Fa from 'svelte-fa';
+	import ViewboxConfigModal from '../../components/ViewboxConfigModal.svelte';
+	import type { exportItem, boxItem } from '$lib/types';
+	import vid_stitched from '$lib/videos/combined.mp4';
+	import vid_whole from '$lib/videos/broadcast.mp4';
+	import { Grid, gridHelp } from '$lib/js/svelte-grid';
 	import { faCog } from '@fortawesome/free-solid-svg-icons';
+	import { notifications } from '../../components/toaster/notification';
+	import { onMount } from 'svelte';
 
 	const id = () => '_' + Math.random().toString(36).substr(2, 9);
 	const COLS = 6;
-	let modalActive = false;
+	const cols: number[][] = [[1200, 6]];
 	let currentGridBox: boxItem;
-
-	let items: boxItem[] = [];
-
-	let boll = false;
+	let modalActive = false;
+	let showOverlay = false;
 	let loaded = false;
-	let basic: any;
-	let myVideo: any;
+	let basic: string;
+	let myVideo: HTMLVideoElement;
 	let vidSrc: string;
 	let sources: string[] = [];
-	const cols = [[1200, 6]];
+	let items: any[] = [];
 
 	onMount(async () => {
 		basic = vid_whole;
@@ -31,6 +29,9 @@
 		getSources();
 	});
 
+	/**
+	 * Populate the items list which contains the intial boxes
+	 */
 	const populateItems = () => {
 		items = [
 			{
@@ -72,12 +73,12 @@
 		];
 	};
 
-	function toggleBoll() {
-		boll = !boll;
+	function toggleOverlay() {
+		showOverlay = !showOverlay;
 	}
 
 	const getSources = () => {
-		var response = fetch('http://localhost:8008/sources')
+		fetch('http://localhost:8008/sources')
 			.then((res) => res.json())
 			.then((data) => {
 				sources = data;
@@ -93,9 +94,9 @@
 	 * Toggels the configuration modal for the layout boxes
 	 * where one can edit video source and set a particular audiosource
 	 *
-	 * @param currentBox
+	 * @param currentBox The currently selected box modal [boxItem|undefined]
 	 */
-	function toggleConfigModal(event: any, currentBox: boxItem) {
+	function toggleConfigModal(event: any,currentBox: boxItem | undefined): void|null|undefined {
 		if (currentBox) {
 			modalActive = !modalActive;
 			currentGridBox = currentBox;
@@ -133,8 +134,8 @@
 			// myVideo.load();
 
 			// Toggle layout
-			if (boll) {
-				toggleBoll();
+			if (showOverlay) {
+				toggleOverlay();
 			}
 			// myVideo.play();
 		} else {
@@ -225,7 +226,7 @@
 
 <section>
 	<div class="button-container">
-		<button on:click={toggleBoll} class="bg-[#9899D0] rounded p-2 text-white">
+		<button on:click={toggleOverlay} class="bg-[#9899D0] rounded p-2 text-white">
 			Toggle overlay
 		</button>
 
@@ -252,7 +253,7 @@
 				/>
 			</div>
 		{/if}
-		{#if boll}
+		{#if showOverlay}
 			<div class="demo-container">
 				<Grid bind:items rowHeight={100} let:item let:dataItem {cols}>
 					<div class="demo-widget">
@@ -269,7 +270,7 @@
 						<!-- svelte-ignore a11y-click-events-have-key-events -->
 						<span
 							on:pointerdown={(e) => e.stopPropagation()}
-							on:click={(e) => toggleConfigModal(e, dataItem)}
+							on:click={(e) => toggleConfigModal(e,dataItem)}
 							class="bottom-1 left-3 absolute"
 						>
 							<p class="cog"><Fa icon={faCog} style="padding: 0 0 10 5;" size="1.8x" /></p>
