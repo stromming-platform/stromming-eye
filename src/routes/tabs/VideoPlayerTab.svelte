@@ -38,8 +38,8 @@
 				[COLS]: gridHelp.item({
 					x: 0,
 					y: 0,
-					w: 4,
-					h: 4
+					w: 3,
+					h: 3
 				}),
 				id: id(),
 				source: sources,
@@ -48,10 +48,10 @@
 			},
 			{
 				[COLS]: gridHelp.item({
-					x: 4,
+					x: 3,
 					y: 0,
-					w: 2,
-					h: 2
+					w: 3,
+					h: 3
 				}),
 				id: id(),
 				source: sources,
@@ -60,14 +60,26 @@
 			},
 			{
 				[COLS]: gridHelp.item({
-					x: 4,
-					y: 2,
-					w: 2,
-					h: 2
+					x: 0,
+					y: 3,
+					w: 3,
+					h: 3
 				}),
 				id: id(),
 				source: sources,
 				selectedSource: sources[2],
+				isPrimaryAudioSource: false
+			},
+			{
+				[COLS]: gridHelp.item({
+					x: 3,
+					y: 3,
+					w: 3,
+					h: 3
+				}),
+				id: id(),
+				source: sources,
+				selectedSource: sources[3],
 				isPrimaryAudioSource: false
 			}
 		];
@@ -145,10 +157,13 @@
 	}
 
 	const createTiles = (tileList: exportItem[]) => {
-		const streamTiles = tileList.map((tile) => ({
+		const layoutMatrix_x = [0,1,0,1]
+		const layoutMatrix_y = [0,0,1,1]
+
+		const streamTiles = tileList.map((tile, i) => ({
 			source: tile.source,
-			x_pos: tile.x_pos,
-			y_pos: tile.y_pos,
+			x_pos: layoutMatrix_x[i],
+			y_pos: layoutMatrix_y[i],
 			audio: tile.audio
 		}));
 
@@ -168,9 +183,19 @@
 			.then((response) => {
 				console.log(JSON.stringify(response));
 				loaded = true;
-				vidSrc = 'http://localhost:8008/video';
-				myVideo.load();
-				myVideo.play();
+
+				const temp = fetch('http://localhost:8008/video')
+					.then(res => res.blob())
+					.then(resBlob => {
+						const objectURL = URL.createObjectURL(resBlob);
+    					vidSrc = objectURL;
+						myVideo.load();
+						myVideo.play();
+					})
+					.catch((e) => {
+						console.log(e);
+						return [];
+					});
 			});
 	};
 
@@ -188,14 +213,14 @@
 	 * Removes a layout box
 	 * @param item
 	 */
-	function remove(item: boxItem) {
+	const remove = (item: boxItem) => {
 		items = items.filter((value) => value.id !== item.id);
 	}
 
 	/**
 	 * Adds a layout box
 	 */
-	function add() {
+	const add = () => {
 		let newItem = {
 			[COLS]: gridHelp.item({
 				w: 2,
