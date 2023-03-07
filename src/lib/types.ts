@@ -11,8 +11,8 @@ export type theme = {
 export type boxItem = {
 	6: any;
 	id: string;
-	source: string | undefined;
-	selectedSource: string | undefined;
+	source: string[];
+	selectedSource: string;
 	isPrimaryAudioSource: boolean;
 };
 
