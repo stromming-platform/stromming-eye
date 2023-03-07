@@ -15,8 +15,26 @@
 	let modalActive = false;
 	let currentGridBox: boxItem|undefined;
 
-    let items = [
-    {
+    let items = [];
+
+  let boll = false;
+  let loaded = false;
+  let basic = null;
+  let myVideo = null;
+  let vidSrc = null;
+  let sources = []
+  const cols = [[1200, 6]];
+
+	onMount(async () => {
+		basic = vid_whole
+		vidSrc = vid_whole;
+		loaded = true;
+		getSources();
+	});
+
+	const populateItems = () => {
+		items = [
+			{
 		[COLS]: gridHelp.item({
 			x: 0,
 			y: 0,
@@ -24,7 +42,8 @@
 			h: 4,
 		}),
 		id: id(),
-		source: 'myStream.com',
+		source: sources,
+		selectedSource: sources[0],
 		isPrimaryAudioSource: true,
     },
     {
@@ -35,7 +54,8 @@
 			h: 2,
 		}),
 		id: id(),
-		source: undefined,
+		source: sources,
+		selectedSource: sources[1],
 		isPrimaryAudioSource: false,
     },
 	{
@@ -46,26 +66,26 @@
 			h: 2,
 		}),
 		id: id(),
-		source: undefined,
+		source: sources,
+		selectedSource: sources[2],
 		isPrimaryAudioSource: false,
 	},
-  ];
-
-  let boll = false;
-  let loaded = false;
-  let basic = null;
-  let myVideo = null;
-  let vidSrc = null;
-  const cols = [[1200, 6]];
-
-	onMount(async () => {
-		basic = vid_whole
-		vidSrc = vid_whole;
-		loaded = true;
-	});
+		]
+	}
 
 	function toggleBoll() {
 		boll = !boll;
+	}
+
+	const getSources = () => {
+		var response = fetch('http://localhost:8008/sources').then(res => res.json()).then(data => {
+			sources = data;
+			populateItems()
+		}).catch(e => {
+			console.log(e);
+			return []
+		}
+		);
 	}
 
 	/**
@@ -92,11 +112,9 @@
 		let hasAudio = false;
 		for(let i of items){
 			let tempItem: exportItem = {
-				source: i[6].source,
-				height: i[6].h,
-				width: i[6].w,
-				xCoord: i[6].x,
-				yCoord: i[6].y,
+				source: i.selectedSource,
+				x_pos: i[6].x,
+				y_pos: i[6].y,
 				audio: i.isPrimaryAudioSource, 
 			}
 			if(i.isPrimaryAudioSource) {hasAudio = true;}
@@ -155,7 +173,7 @@
 			y: 0,
 			}),
 			id: id(),
-			source: undefined,
+			source: sources,
 			isPrimaryAudioSource: false,
 		};
 
@@ -198,8 +216,9 @@
 					streamURL={currentGridBox.source}
 					isPrimaryAudio={currentGridBox.isPrimaryAudioSource}
 					on:save={(event) => {
-						currentGridBox.source = event.detail.url;
+						currentGridBox.selectedSource = event.detail.url
 						currentGridBox.isPrimaryAudioSource = event.detail.audio;
+						console.log(currentGridBox);
 						handlePrimaryAudioChange();
 					}}
 					on:close={toggleConfigModal}

@@ -2,7 +2,8 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
 
-	export let streamURL: string|undefined;
+	export let streamURL: string[];
+	export let selectedStream: string;
 	export let isPrimaryAudio: boolean;
 	let componentRef: HTMLDivElement;
 	const dispatch = createEventDispatcher();
@@ -15,7 +16,13 @@
 	<div class="p-2 w-full h-full">
 		<div>
 			<label for="">Source:</label>
-			<input type="url" bind:value={streamURL} class="border border-2">
+			<select bind:value={selectedStream}>
+				{#each streamURL as source}
+					<option value={source}>
+						{source}
+					</option>
+				{/each}
+			</select>
 		</div>
 		<div>
 			<label for="">Audio source:</label>
@@ -27,7 +34,7 @@
 				class="flex-none bg-green-300 hover:bg-green-500 rounded p-1" 
 				style="width: 70px;"				
 				on:click={() => {
-					dispatch('save', {url: streamURL, audio: isPrimaryAudio});
+					dispatch('save', {url: selectedStream, audio: isPrimaryAudio});
 					componentRef.parentNode?.removeChild(componentRef);
 					dispatch('close');
 					}}
