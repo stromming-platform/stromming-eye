@@ -3,8 +3,8 @@
 	import { createEventDispatcher } from "svelte";
 
 	export let streamURL: string[];
-	export let selectedStream: string;
 	export let isPrimaryAudio: boolean;
+	let selectedStream: string;
 	let componentRef: HTMLDivElement;
 	const dispatch = createEventDispatcher();
 </script>
