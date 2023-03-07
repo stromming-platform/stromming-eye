@@ -79,7 +79,7 @@
 				}),
 				id: id(),
 				source: sources,
-				selectedSource: sources[3],
+				selectedSource: sources[1],
 				isPrimaryAudioSource: false
 			}
 		];
@@ -191,6 +191,7 @@
     					vidSrc = objectURL;
 						myVideo.load();
 						myVideo.play();
+						performDelete()
 					})
 					.catch((e) => {
 						console.log(e);
@@ -198,6 +199,12 @@
 					});
 			});
 	};
+
+	const performDelete = () => {
+		fetch('http://localhost:8008/delete', {
+			method: 'DELETE',
+		}).then(res => console.log(res));
+	}
 
 	function handlePrimaryAudioChange() {
 		if (currentGridBox?.isPrimaryAudioSource) {
